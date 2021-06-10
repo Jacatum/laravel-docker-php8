@@ -1,0 +1,40 @@
+version: '3'
+services:
+  mysql:
+    image: mysql
+    environment:
+        MYSQL_PASSWORD: ''
+        MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./dump:/dump
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - dev-network
+  nginx:
+    build:
+      dockerfile: ./docker/workspace.dockerfile
+      context: .
+    image: jacatum/ubuntu
+    container_name: workspace
+    volumes:
+      - ../:/var/www
+    ports:
+      - "80:80"
+    networks:
+      - dev-network
+    depends_on: 
+      - mysql
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
+    networks:
+      - dev-network
+networks:
+  dev-network:
+    driver: bridge
